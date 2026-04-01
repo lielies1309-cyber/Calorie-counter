@@ -1,4 +1,5 @@
 ---
+layout: null
 render_with_liquid: false
 ---
 <!DOCTYPE html>
@@ -291,7 +292,7 @@ render_with_liquid: false
                                 <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
                                     <div 
                                         className={`h-full transition-all duration-1000 ease-out ${dailyStats.isOver ? 'bg-red-500' : 'bg-orange-500'}`}
-                                        style={{ width: `${dailyStats.percent}%` }}
+                                        style={ { width: dailyStats.percent + '%' } }
                                     />
                                 </div>
                                 
