@@ -40,12 +40,14 @@
             
             const fileInputRef = useRef(null);
 
-            // Initialize icons
+            // Initialize Lucide icons whenever the component renders or state changes
             useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
             });
 
-            // Initialize App: Load History, API Key, and Goal
+            // Initialize App: Load History, API Key, and Goal from local storage
             useEffect(() => {
                 const savedHistory = localStorage.getItem('calorie_history');
                 const savedKey = localStorage.getItem('gemini_api_key');
@@ -65,12 +67,12 @@
                 if (savedGoal) setDailyGoal(parseInt(savedGoal));
             }, []);
 
-            // Sync history to local storage
+            // Sync history to local storage whenever it changes
             useEffect(() => {
                 localStorage.setItem('calorie_history', JSON.stringify(history));
             }, [history]);
 
-            // Calculate daily totals
+            // Calculate daily totals using useMemo for performance
             const dailyStats = useMemo(() => {
                 const today = new Date().toLocaleDateString();
                 const todayMeals = history.filter(item => {
@@ -221,8 +223,10 @@
                         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                             <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl">
                                 <div className="flex justify-between items-center mb-6">
-                                    <h2 className="text-xl font-bold">Settings</h2>
-                                    <button onClick={() => setShowSettings(false)}><i data-lucide="x" className="text-slate-400 w-6 h-6"></i></button>
+                                    <h2 className="text-xl font-bold text-slate-800">Settings</h2>
+                                    <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-slate-100 rounded-full transition-colors">
+                                        <i data-lucide="x" className="text-slate-400 w-6 h-6"></i>
+                                    </button>
                                 </div>
                                 
                                 <div className="space-y-6">
@@ -235,7 +239,7 @@
                                             placeholder="Paste key here..."
                                             className="w-full bg-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none"
                                         />
-                                        <p className="text-[10px] text-slate-400 mt-2 italic">Get a key from Google AI Studio</p>
+                                        <p className="text-[10px] text-slate-400 mt-2 italic">Stored locally in your browser</p>
                                     </div>
 
                                     <div>
@@ -244,14 +248,14 @@
                                             type="number"
                                             value={dailyGoal}
                                             onChange={(e) => setDailyGoal(parseInt(e.target.value) || 0)}
-                                            className="w-full bg-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-bold"
+                                            className="w-full bg-slate-100 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500 outline-none font-bold text-slate-700"
                                         />
                                     </div>
 
                                     <button 
                                         onClick={saveSettings}
                                         disabled={saveStatus}
-                                        className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all ${
+                                        className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all shadow-md ${
                                             saveStatus ? 'bg-green-500 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'
                                         }`}
                                     >
@@ -272,7 +276,7 @@
                                     <div>
                                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Today's Progress</p>
                                         <h2 className="text-3xl font-black text-slate-800 leading-none">
-                                            {dailyStats.totalCals} <span className="text-sm font-medium text-slate-400">/ {dailyGoal}</span>
+                                            {dailyStats.totalCals} <span className="text-sm font-medium text-slate-400 tracking-tight">/ {dailyGoal}</span>
                                         </h2>
                                     </div>
                                     <div className="text-right">
@@ -289,48 +293,48 @@
                                 </div>
                                 
                                 {dailyStats.isOver && (
-                                    <div className="flex items-center gap-2 text-red-500 text-[10px] font-bold uppercase">
+                                    <div className="flex items-center gap-2 text-red-500 text-[10px] font-bold uppercase tracking-wide">
                                         <i data-lucide="alert-circle" className="w-3 h-3"></i>
-                                        Goal exceeded
+                                        Daily limit reached
                                     </div>
                                 )}
                             </div>
                         )}
 
-                        {/* Upload State */}
+                        {/* Upload/Scanning State */}
                         {!image ? (
                             <div className="space-y-4">
                                 <div 
-                                    className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center text-center gap-4 hover:border-orange-300 transition-colors cursor-pointer"
+                                    className="bg-white border-2 border-dashed border-slate-200 rounded-3xl p-10 flex flex-col items-center justify-center text-center gap-4 hover:border-orange-300 transition-colors cursor-pointer group"
                                     onClick={() => fileInputRef.current.click()}
                                 >
-                                    <div className="bg-orange-100 p-4 rounded-full text-orange-600">
+                                    <div className="bg-orange-100 p-4 rounded-full text-orange-600 group-hover:scale-110 transition-transform">
                                         <i data-lucide="camera" className="w-8 h-8"></i>
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-lg leading-tight">Add a Meal</p>
-                                        <p className="text-slate-400 text-sm">Snap a photo to count calories</p>
+                                        <p className="font-bold text-lg leading-tight text-slate-700">Add a Meal</p>
+                                        <p className="text-slate-400 text-sm mt-1">Snap a photo to count calories</p>
                                     </div>
                                     <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleImageUpload} />
                                 </div>
                                 
                                 {history.length > 0 && (
-                                    <div className="pt-2">
+                                    <div className="pt-2 animate-in fade-in slide-in-from-top-2 duration-700">
                                         <h2 className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-3 flex items-center gap-2">
                                             <i data-lucide="calendar" className="w-3 h-3"></i> Recent Meals
                                         </h2>
                                         <div className="space-y-3">
-                                            {history.map(item => (
-                                                <div key={item.id} className="bg-white p-4 rounded-2xl flex items-center justify-between shadow-sm border border-slate-100">
+                                            {history.slice(0, 10).map(item => (
+                                                <div key={item.id} className="bg-white p-4 rounded-2xl flex items-center justify-between shadow-sm border border-slate-100 hover:border-slate-200 transition-colors">
                                                     <div>
                                                         <p className="font-bold text-slate-800 text-sm leading-tight">{item.mealName}</p>
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">{item.date}</p>
+                                                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-tighter">{item.date}</p>
                                                     </div>
                                                     <div className="flex items-center gap-3">
                                                         <span className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-[10px] font-black">
                                                             {item.totalCalories} kcal
                                                         </span>
-                                                        <button onClick={() => deleteHistoryItem(item.id)} className="text-slate-200 hover:text-red-400 transition-colors">
+                                                        <button onClick={() => deleteHistoryItem(item.id)} className="text-slate-200 hover:text-red-400 transition-colors p-1">
                                                             <i data-lucide="trash-2" className="w-4 h-4"></i>
                                                         </button>
                                                     </div>
@@ -341,16 +345,17 @@
                                 )}
                             </div>
                         ) : (
-                            /* Analysis State */
+                            /* Analysis Result State */
                             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="relative rounded-3xl overflow-hidden shadow-xl aspect-square bg-slate-200">
+                                <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-square bg-slate-200 border-4 border-white">
                                     <img src={image} alt="Meal preview" className="w-full h-full object-cover" />
                                     {loading && (
-                                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 text-center">
+                                        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 text-center">
                                             <div className="animate-spin-slow mb-4">
                                                 <i data-lucide="loader-2" className="w-10 h-10"></i>
                                             </div>
-                                            <p className="font-bold tracking-wide uppercase text-xs">Scanning your plate...</p>
+                                            <p className="font-black tracking-widest uppercase text-xs">AI Scanning Ingredients...</p>
+                                            <p className="text-[10px] opacity-60 mt-2">Checking portion sizes and nutrition</p>
                                         </div>
                                     )}
                                 </div>
@@ -358,14 +363,14 @@
                                 {!analysis && !loading && (
                                     <button 
                                         onClick={analyzeImage}
-                                        className="w-full bg-orange-500 text-white font-bold py-5 rounded-2xl shadow-xl shadow-orange-100 flex items-center justify-center gap-2 transform active:scale-95 transition-all"
+                                        className="w-full bg-orange-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-orange-200 flex items-center justify-center gap-3 transform active:scale-95 transition-all uppercase tracking-widest"
                                     >
                                         <i data-lucide="flame" className="w-5 h-5"></i> Calculate with AI
                                     </button>
                                 )}
 
                                 {error && (
-                                    <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex gap-3 text-red-600 text-xs font-medium">
+                                    <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex gap-3 text-red-600 text-xs font-bold animate-shake">
                                         <i data-lucide="alert-circle" className="shrink-0 w-4 h-4"></i>
                                         <p>{error}</p>
                                     </div>
@@ -377,7 +382,9 @@
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
                                                     <h2 className="text-2xl font-black text-slate-800 leading-tight">{analysis.mealName}</h2>
-                                                    <p className="text-[10px] text-green-600 font-bold uppercase mt-1">Logged successfully</p>
+                                                    <p className="text-[10px] text-green-600 font-bold uppercase mt-1 flex items-center gap-1">
+                                                        <i data-lucide="check" className="w-3 h-3"></i> Logged to Daily Total
+                                                    </p>
                                                 </div>
                                             </div>
                                             
@@ -394,33 +401,35 @@
                                         </div>
 
                                         <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                                            <h3 className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-4">Breakdown</h3>
+                                            <h3 className="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-4">Nutritional Breakdown</h3>
                                             <div className="space-y-4">
                                                 {analysis.items.map((item, i) => (
                                                     <div key={i} className="flex justify-between items-center border-b border-slate-50 pb-2 last:border-0 last:pb-0">
                                                         <div>
-                                                            <p className="font-bold text-slate-800 text-sm">{item.name}</p>
-                                                            <p className="text-[10px] text-slate-400 font-medium">{item.portion}</p>
+                                                            <p className="font-bold text-slate-800 text-sm leading-tight">{item.name}</p>
+                                                            <p className="text-[10px] text-slate-400 font-medium tracking-tight mt-0.5">{item.portion}</p>
                                                         </div>
-                                                        <p className="font-black text-slate-700 text-sm">{item.calories} kcal</p>
+                                                        <p className="font-black text-slate-700 text-sm">{item.calories} <span className="text-[9px] text-slate-400 uppercase ml-0.5">kcal</span></p>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
 
                                         <div className="bg-indigo-50 p-5 rounded-3xl flex gap-4 border border-indigo-100">
-                                            <i data-lucide="info" className="text-indigo-500 w-5 h-5 shrink-0"></i>
+                                            <div className="bg-white p-2 rounded-xl shadow-sm shrink-0 h-fit">
+                                                <i data-lucide="info" className="text-indigo-500 w-5 h-5"></i>
+                                            </div>
                                             <div>
-                                                <p className="font-bold text-indigo-900 text-[10px] uppercase tracking-wider mb-1">Nutritionist Tip</p>
+                                                <p className="font-black text-indigo-900 text-[10px] uppercase tracking-wider mb-1">Mom's Health Tip</p>
                                                 <p className="text-indigo-700 text-sm leading-relaxed italic">"{analysis.healthTip}"</p>
                                             </div>
                                         </div>
 
                                         <button 
                                             onClick={() => { setImage(null); setAnalysis(null); }}
-                                            className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold shadow-lg"
+                                            className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black shadow-xl uppercase tracking-widest text-sm hover:bg-slate-800 active:scale-95 transition-all"
                                         >
-                                            Back to Home
+                                            Back to Dashboard
                                         </button>
                                     </div>
                                 )}
@@ -428,12 +437,12 @@
                         )}
                     </main>
 
-                    {/* Footer Nav / Action */}
+                    {/* Fixed Scan Button */}
                     {!image && (
-                        <div className="fixed bottom-6 left-0 right-0 px-4 flex justify-center z-10">
+                        <div className="fixed bottom-8 left-0 right-0 px-6 flex justify-center z-10">
                             <button 
                                 onClick={() => fileInputRef.current.click()}
-                                className="bg-orange-500 text-white flex items-center gap-3 px-10 py-4 rounded-full shadow-2xl font-black tracking-wide transform active:scale-95 transition-transform"
+                                className="bg-orange-500 text-white flex items-center gap-3 px-12 py-4 rounded-full shadow-2xl shadow-orange-300 font-black tracking-widest transform active:scale-95 transition-all border-4 border-white uppercase"
                             >
                                 <i data-lucide="camera" className="w-6 h-6"></i>
                                 SCAN MEAL
@@ -444,6 +453,7 @@
             );
         };
 
+        // Render the application
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
